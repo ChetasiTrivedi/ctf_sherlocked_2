@@ -1,0 +1,239 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sherlock's Treasure Hunt</title>
+  <style>
+    /* General Styling */
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      background: linear-gradient(145deg, #0f0f0f, #3a3a3a);
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1, h2, p {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    input[type="text"], button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px;
+      font-size: 16px;
+      width: 80%;
+    }
+
+    button {
+      background-color: #221b44;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #ffcc00;
+      color: #000;
+    }
+
+    .step {
+      display: none;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(20, 20, 20, 0.9);
+      border: 2px solid #4b0082;
+      border-radius: 10px;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    .image-clue, .audio-clue {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .image-clue img, .audio-clue audio {
+      max-width: 100%;
+      height: auto;
+      border: 2px solid #4b0082;
+      border-radius: 10px;
+    }
+
+    .audio-container {
+      margin: 20px auto;
+      padding: 10px;
+      background: rgba(34, 27, 68, 0.8);
+      border: 2px solid #ffcc00;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .audio-label {
+      color: #ffcc00;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    audio {
+      width: 80%;
+      outline: none;
+      border-radius: 5px;
+    }
+
+    .congrats {
+      text-align: center;
+      margin-top: 20px;
+      background-color: rgba(34, 27, 68, 0.9);
+      border: 2px solid #ffcc00;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .congrats h2 {
+      color: #ffcc00;
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .congrats code {
+      font-family: "Courier New", Courier, monospace;
+      color: #d63384;
+      font-size: 1.2em;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #888;
+    }
+
+    footer strong {
+      color: #ffcc00;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Sherlock's Treasure Hunt</h1>
+    <p>Decrypt the riddles, follow the clues, and uncover the final flag.</p>
+
+    <!-- Step 1 -->
+    <div id="step1" class="step active">
+      <h2>Step 1</h2>
+      <p><strong>Hint:</strong> The first clue lies hidden within the image below. Can you uncover it?</p>
+      <div class="image-clue">
+        <img src="final_challenge.jpg" alt="Final Challenge Clue">
+      </div>
+      <input type="text" id="step1_answer" placeholder="Enter the decoded phrase" autocomplete="off">
+      <button onclick="checkStep1()">Submit</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step2" class="step">
+      <h2>Step 2</h2>
+      
+      <div class="image-clue">
+        <img src="hidden_clue.png" alt="Hidden Clue">
+      </div>
+      <input type="text" id="step2_answer" placeholder="Enter the decoded clue" autocomplete="off">
+      <button onclick="checkStep2()">Submit</button>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="step3" class="step">
+      <h2>Step 3</h2>
+      <p><strong>Hint:</strong>  Listen carefully."</p>
+      <h2>Clue 4: The Final Sound</h2>
+      <p>The clues have been pointing to something… or someone. But how will you reveal the last part of the mystery?</p>
+      <p></p>
+      <audio controls>
+        <source src="the_file.wav" type="audio/wav">
+        Your browser does not support the audio element.
+      </audio>
+      <input type="text" id="step3_answer" placeholder="Enter the flag" autocomplete="off">
+      <button onclick="checkStep3()">Submit</button>
+    </div>
+
+    <!-- Step 4: Congratulations -->
+    <div id="flag" class="step"> showCongratsMessage()</div>
+
+    <footer>
+      <p>Inspired by Sherlock Holmes | <strong>The Game is Afoot!</strong></p>
+    </footer>
+  </div>
+
+  <script>
+    async function checkAnswer(step, answer) {
+  try {
+    const response = await fetch('http://localhost:3000/check-answer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step, answer })
+    });
+
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error("Error validating answer:", error);
+    alert("Server error! Please try again later.");
+    return false;
+  }
+}
+
+async function checkStep1() {
+  const answer1 = document.getElementById('step1_answer').value.trim();
+  if (await checkAnswer('step1', answer1)) {
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+  } else {
+    alert("Incorrect! Try again.");
+  }
+}
+
+async function checkStep2() {
+  const answer2 = document.getElementById('step2_answer').value.trim();
+  if (await checkAnswer('step2', answer2)) {
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step3').classList.add('active');
+  } else {
+    alert("Incorrect! Try again.");
+  }
+}
+
+async function checkStep3() {
+  const answer3 = document.getElementById('step3_answer').value.trim();
+  if (await checkAnswer('step3', answer3)) {
+    document.getElementById('step3').classList.remove('active');
+    showCongratsMessage();
+  } else {
+    alert("Incorrect! Try again.");
+  }
+}
+function showCongratsMessage() {
+      const congratsMessage = `
+        <div class="congrats">
+          <h2>Congratulations!</h2>
+          <p>You have successfully solved the Sherlock-themed treasure hunt.</p>
+          
+          <p>Well done, detective!</p>
+        </div>
+      `;
+      document.getElementById('flag').innerHTML = congratsMessage;
+      document.getElementById('flag').classList.add('active');
+    }
+
+
+  </script>
+</body>
+</html>
